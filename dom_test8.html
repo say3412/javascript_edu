@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>영화 순위</h1>
+    <ul class="list"></ul>
+
+    <script>
+      async function fetchMovieDate(url) {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error("요청실패 상태코드 : " + response.status);
+        }
+
+        const data = await response.json();
+        console.log('data: ' + data);
+        return data;
+      }
+
+      function validateMovieData(data) {
+        if (!data.articleList || data.articleList.length === 0) {
+          throw new Error("데이터가 없습니다.");
+        }
+      }
+
+      function extractMovieInfos(articleList) {
+        return articleList.map((articleList, index) => ({
+          title: articleList.title,
+          rank: index + 1,
+        }));
+      }
+
+      function displayMovie(movieinfos) {
+        const list = document.querySelector('.list');
+
+        for (const movie of movieinfos) {
+            const li = document.createElement("li");
+            li.textContent = `[${movie.rank}위] ${movie.title}`;
+            list.appendChild(li);
+        }
+
+      }
+
+      const url =
+        "http://raw.githubusercontent.com/wapj/jsbackend/main/movieinfo.json";
+
+      async function movies() {
+        try {
+          const data = await fetchMovieDate(url);
+          validateMovieData(data);
+
+          const movieinfos = extractMovieInfos(data.articleList);
+          displayMovie(movieinfos);
+        } catch (e) {
+          console.error("에러 발생: ", e);
+        }
+      }
+
+      movies();
+    </script>
+  </body>
+</html>
